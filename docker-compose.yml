@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_PATH=/app/db/khatmah.db
+    volumes:
+      - khatmah-db:/app/db
+    restart: unless-stopped
+
+volumes:
+  khatmah-db:

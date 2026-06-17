@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quran Khatmah</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Sans+Bengali:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">۞</span>
+        <div>
+          <h1 data-i18n="app.title">Quran Khatmah</h1>
+          <p class="subtitle" data-i18n="app.subtitle">Complete the Quran together</p>
+        </div>
+      </div>
+      <div class="controls">
+        <label class="ctrl">
+          <span data-i18n="lang.label">Language</span>
+          <select id="langSelect">
+            <option value="en">English</option>
+            <option value="bn">বাংলা</option>
+          </select>
+        </label>
+        <label class="ctrl">
+          <span data-i18n="script.label">Script</span>
+          <select id="scriptSelect">
+            <option value="uthmani" data-i18n="script.uthmani">Madani / Uthmani</option>
+            <option value="indopak" data-i18n="script.indopak">Indo-Pak</option>
+          </select>
+        </label>
+      </div>
+    </header>
+
+    <main id="app">
+      <!-- HOME VIEW -->
+      <section id="homeView" class="view">
+        <div class="cards">
+          <div class="card" id="createCard">
+            <h2 data-i18n="home.create.title">Start a new khatmah</h2>
+            <label data-i18n="home.create.count">Number of participants</label>
+            <input id="createCount" type="number" min="1" max="604" value="30" data-i18n-ph="home.create.countPlaceholder" />
+            <label data-i18n="home.create.dedication">Dedication (optional)</label>
+            <input id="createDedication" type="text" data-i18n-ph="home.create.dedicationPlaceholder" />
+            <button id="createBtn" class="btn primary" data-i18n="home.create.button">Create khatmah</button>
+          </div>
+
+          <div class="divider" id="homeOr"><span data-i18n="home.or">or</span></div>
+
+          <div class="card">
+            <h2 data-i18n="home.join.title">Join a khatmah</h2>
+            <label data-i18n="home.join.code">Room code</label>
+            <input id="joinCode" type="text" autocomplete="off" style="text-transform: uppercase" data-i18n-ph="home.join.codePlaceholder" />
+            <label data-i18n="home.join.name">Your name</label>
+            <input id="joinName" type="text" autocomplete="name" data-i18n-ph="home.join.namePlaceholder" />
+            <label data-i18n="home.join.id">Your ID</label>
+            <input id="joinId" type="text" autocomplete="off" data-i18n-ph="home.join.idPlaceholder" />
+            <button id="joinBtn" class="btn primary" data-i18n="home.join.button">Join</button>
+          </div>
+        </div>
+        <p id="homeError" class="error" hidden></p>
+      </section>
+
+      <!-- ROOM VIEW -->
+      <section id="roomView" class="view" hidden>
+        <div id="completedBanner" class="completed" hidden>
+          <h2 data-i18n="completed.title">The khatmah is complete 🎉</h2>
+          <p data-i18n="completed.subtitle">May Allah accept it from everyone.</p>
+        </div>
+
+        <div class="roomhead">
+          <div>
+            <span class="muted" data-i18n="room.code">Room code</span>
+            <div class="roomcode" id="roomCode">——</div>
+          </div>
+          <div id="dedicationWrap" class="dedication" hidden>
+            <span class="muted" data-i18n="room.dedication">Dedication</span>
+            <div id="dedicationText" dir="auto"></div>
+          </div>
+          <div class="sharebox">
+            <button id="shareBtn" class="btn ghost" data-i18n="room.share">Copy invite link</button>
+            <button id="shareAdminBtn" class="btn ghost" data-i18n="admin.shareAdmin" hidden>Copy admin link</button>
+          </div>
+        </div>
+
+        <div class="progresswrap">
+          <div class="progressbar"><div id="progressFill" class="progressfill"></div></div>
+          <div id="progressText" class="progresstext"></div>
+        </div>
+
+        <div id="yourPart" class="yourpart"></div>
+
+        <div class="grid">
+          <div>
+            <h3 data-i18n="board.title">All parts</h3>
+            <div id="board" class="board"></div>
+          </div>
+          <aside>
+            <div id="adminPanel" class="adminpanel" hidden>
+              <h3 data-i18n="admin.title">Admin</h3>
+              <p class="muted small" data-i18n="admin.youAreAdmin">You are the admin of this khatmah.</p>
+              <button id="exportBtn" class="btn primary" data-i18n="admin.export" hidden>Export proof &amp; close</button>
+              <p class="muted small" id="exportHint" data-i18n="admin.exportHint" hidden>Available once the khatmah is complete.</p>
+              <button id="resetBtn" class="btn danger" data-i18n="admin.reset">Reset khatmah</button>
+            </div>
+            <h3 data-i18n="feed.title">Activity</h3>
+            <ul id="feed" class="feed"></ul>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" hidden></div>
+
+    <footer class="sitefooter">
+      © <span id="footerYear"></span>
+      <a href="https://www.devxhub.com" target="_blank" rel="noopener">Devxhub Limited</a>
+      · <span data-i18n="footer.rights">All rights reserved.</span>
+    </footer>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/i18n.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
