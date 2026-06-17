@@ -1,98 +1,557 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quran Khatmah</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+
+    <!-- ===== SEO (neuro-marketing: benefit + reassurance + social proof) ===== -->
+    <title>
+      Quran Khatmah — Free Group Quran Completion App | Real-Time, No Signup
+    </title>
+    <meta
+      name="description"
+      content="Complete a full Quran khatmah together — free, in seconds, no signup. Split the 30 juz' across friends, family or your masjid, track every part live, and dedicate the reward to a loved one. Works on any phone, in English & বাংলা."
+    />
+    <meta
+      name="keywords"
+      content="quran khatmah, group quran reading, khatm al quran, online khatmah, juz division, collaborative quran, ramadan khatmah, quran completion, sadaqah jariyah, madani indopak"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Devxhub Limited" />
+    <meta name="theme-color" content="#171132" />
+    <!-- TODO: set to the real deployed origin -->
+    <link rel="canonical" href="https://quran-khatmah.devxhub.com/" />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href="https://quran-khatmah.devxhub.com/"
+    />
+    <link
+      rel="alternate"
+      hreflang="bn"
+      href="https://quran-khatmah.devxhub.com/?lang=bn"
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://quran-khatmah.devxhub.com/"
+    />
+
+    <!-- ===== Open Graph / Twitter ===== -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Quran Khatmah" />
+    <meta
+      property="og:title"
+      content="Complete the Quran together — free, live, no signup"
+    />
+    <meta
+      property="og:description"
+      content="Start a group khatmah in seconds. Fairly split the 30 juz', claim your part, and watch the whole Quran get completed in real time. Dedicate it to someone you love."
+    />
+    <meta property="og:url" content="https://quran-khatmah.devxhub.com/" />
+    <meta
+      property="og:image"
+      content="https://quran-khatmah.devxhub.com/og-image.svg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Quran Khatmah — complete the Quran together, free"
+    />
+    <meta
+      name="twitter:description"
+      content="Split the 30 juz' across your group, claim your part, and finish a full khatmah together — live and free."
+    />
+    <meta
+      name="twitter:image"
+      content="https://quran-khatmah.devxhub.com/og-image.svg"
+    />
+
+    <!-- ===== Structured data ===== -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "Quran Khatmah",
+            "applicationCategory": "LifestyleApplication",
+            "operatingSystem": "Any",
+            "browserRequirements": "Requires JavaScript",
+            "description": "Free real-time app to complete a Quran khatmah together as a group, with fair juz'/page division and live progress tracking. No signup required.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "inLanguage": ["en", "bn"],
+            "publisher": {
+              "@type": "Organization",
+              "name": "Devxhub Limited",
+              "url": "https://www.devxhub.com"
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is a Quran khatmah?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "A khatmah is the complete reading of the entire Quran. With this app a group shares the work — the 30 juz' are split into parts and each person reads their share until the whole Quran is finished together."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is it free and do I need an account?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, it is 100% free and needs no signup. Create a room, share the code, and start reading. No email, no password, no app install."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is the Quran divided between participants?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Parts follow authentic juz' boundaries (and page numbers from the standard 604-page Madani mushaf) using the quran-meta dataset, so every share is fair and accurate."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can people join from different places?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Absolutely. Anyone with the room code can join from any device, anywhere, and progress syncs live for everyone in real time."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Which scripts and languages are supported?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Both the Madani/Uthmani and Indo-Pak scripts are available, and the interface is fully bilingual in English and Bangla (বাংলা)."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Sans+Bengali:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Sans+Bengali:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/styles.css" />
+
+    <!-- Apply theme before paint to avoid a flash -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("khatmah:theme") || "dark"; // dark is the default
+          if (t === "dark") document.documentElement.classList.add("dark");
+        } catch (e) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
   </head>
   <body>
-    <header class="topbar">
-      <div class="brand">
-        <span class="brand-mark">۞</span>
-        <div>
-          <h1 data-i18n="app.title">Quran Khatmah</h1>
-          <p class="subtitle" data-i18n="app.subtitle">Complete the Quran together</p>
-        </div>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="logo" href="https://www.devxhub.com" target="_blank" rel="noopener" aria-label="Devxhub home">
+          <img src="/images/devxhub.svg" alt="Devxhub – custom software development" height="24" />
+        </a>
+
+        <nav class="nav" aria-label="Devxhub">
+          <a class="nav-link" href="https://www.devxhub.com/about" target="_blank" rel="noopener">About Us</a>
+          <a class="nav-link" href="https://www.devxhub.com/our-process" target="_blank" rel="noopener">The Devxhub Model</a>
+          <div class="has-dropdown">
+            <a class="nav-link" href="https://www.devxhub.com/services" target="_blank" rel="noopener">Services <span class="caret">⌄</span></a>
+            <div class="dropdown">
+              <a href="https://www.devxhub.com/services/ai-app-development-integration" target="_blank" rel="noopener">AI App Development &amp; Integration</a>
+              <a href="https://www.devxhub.com/services/it-staff-augmentation-services-usa" target="_blank" rel="noopener">IT Staff Augmentation</a>
+              <a href="https://www.devxhub.com/services/full-stack-development" target="_blank" rel="noopener">Full Stack Development</a>
+              <a href="https://www.devxhub.com/services/mobile-application-development" target="_blank" rel="noopener">Mobile Application Development</a>
+              <a href="https://www.devxhub.com/services/custom-software-development" target="_blank" rel="noopener">Custom &amp; Enterprise Software Development</a>
+              <a href="https://www.devxhub.com/services/mvp-saas-end-to-end-development" target="_blank" rel="noopener">MVP, SaaS, End-to-End Development</a>
+              <a href="https://www.devxhub.com/services/devops-solutions" target="_blank" rel="noopener">DevOps &amp; Cloud Solutions</a>
+            </div>
+          </div>
+          <a class="nav-link" href="https://www.devxhub.com/case-study" target="_blank" rel="noopener">Case Studies</a>
+          <a class="nav-link" href="https://www.devxhub.com/career" target="_blank" rel="noopener">Career</a>
+          <a class="nav-link" href="https://www.devxhub.com/blog" target="_blank" rel="noopener">Blog</a>
+        </nav>
+
+        <a class="cta-call" href="https://calendly.com/devxhub/15min" target="_blank" rel="noopener">Book a Free Call</a>
+
+        <button id="menuBtn" class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <span class="bars"><span></span><span></span></span> Menu
+        </button>
       </div>
-      <div class="controls">
-        <label class="ctrl">
-          <span data-i18n="lang.label">Language</span>
-          <select id="langSelect">
-            <option value="en">English</option>
-            <option value="bn">বাংলা</option>
-          </select>
-        </label>
-        <label class="ctrl">
-          <span data-i18n="script.label">Script</span>
-          <select id="scriptSelect">
-            <option value="uthmani" data-i18n="script.uthmani">Madani / Uthmani</option>
-            <option value="indopak" data-i18n="script.indopak">Indo-Pak</option>
-          </select>
-        </label>
+
+      <div id="mobileMenu" class="mobile-menu" hidden>
+        <a href="https://www.devxhub.com/about" target="_blank" rel="noopener">About Us</a>
+        <a href="https://www.devxhub.com/our-process" target="_blank" rel="noopener">The Devxhub Model</a>
+        <a href="https://www.devxhub.com/services" target="_blank" rel="noopener">Services</a>
+        <a href="https://www.devxhub.com/case-study" target="_blank" rel="noopener">Case Studies</a>
+        <a href="https://www.devxhub.com/career" target="_blank" rel="noopener">Career</a>
+        <a href="https://www.devxhub.com/blog" target="_blank" rel="noopener">Blog</a>
+        <a class="cta-call" href="https://calendly.com/devxhub/15min" target="_blank" rel="noopener">Book a Free Call</a>
       </div>
     </header>
 
     <main id="app">
+      <div class="appbar">
+        <a class="app-brand" href="/" aria-label="Quran Khatmah home">
+          <span class="brand-mark">۞</span>
+          <span class="app-name" data-i18n="app.title">Quran Khatmah</span>
+        </a>
+        <div class="controls">
+          <button id="themeToggle" class="icon-btn" type="button" data-i18n-aria="theme.toggle" aria-label="Toggle theme">🌙</button>
+          <label class="ctrl">
+            <span data-i18n="lang.label">Language</span>
+            <select id="langSelect">
+              <option value="en">English</option>
+              <option value="bn">বাংলা</option>
+            </select>
+          </label>
+          <label class="ctrl">
+            <span data-i18n="script.label">Script</span>
+            <select id="scriptSelect">
+              <option value="uthmani" data-i18n="script.uthmani">Madani / Uthmani</option>
+              <option value="indopak" data-i18n="script.indopak">Indo-Pak</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
       <!-- HOME VIEW -->
       <section id="homeView" class="view">
+        <!-- ===== Marketing landing (hidden when arriving via an invite code) ===== -->
+        <div id="landing">
+          <section class="hero">
+            <h1 data-i18n="home.hero.title">
+              Complete the Quran together — one khatmah, many hearts
+            </h1>
+            <p class="lead" data-i18n="home.hero.lead">
+              Split the 30 juz' across your family, friends or masjid, claim
+              your part, and watch the whole Quran finish in real time. Free,
+              instant, no signup.
+            </p>
+            <div class="hero-cta">
+              <a
+                class="btn primary"
+                href="#createCard"
+                data-i18n="home.hero.start"
+                >Start a khatmah</a
+              >
+              <a class="btn ghost" href="#joinCard" data-i18n="home.hero.join"
+                >I have a code</a
+              >
+            </div>
+            <div class="pills">
+              <span class="pill" data-i18n="home.hero.pill1"
+                >100% free · No signup</span
+              >
+              <span class="pill" data-i18n="home.hero.pill2"
+                >Madani & Indo-Pak</span
+              >
+              <span class="pill" data-i18n="home.hero.pill3"
+                >English & বাংলা</span
+              >
+            </div>
+          </section>
+
+          <section class="section">
+            <h2 class="section-title" data-i18n="home.steps.title">
+              Done in three simple steps
+            </h2>
+            <div class="steps" style="margin-top: 16px">
+              <div class="step">
+                <h3 data-i18n="home.steps.s1t">Create a room</h3>
+                <p data-i18n="home.steps.s1b">
+                  Pick how many people will join. We divide the Quran fairly for
+                  you.
+                </p>
+              </div>
+              <div class="step">
+                <h3 data-i18n="home.steps.s2t">Share the code</h3>
+                <p data-i18n="home.steps.s2b">
+                  Send the room code or link. Everyone joins in one tap — no
+                  account needed.
+                </p>
+              </div>
+              <div class="step">
+                <h3 data-i18n="home.steps.s3t">Read & finish together</h3>
+                <p data-i18n="home.steps.s3b">
+                  Claim your part, mark it done, and watch the khatmah complete
+                  live.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2 class="section-title" data-i18n="home.benefits.title">
+              Why families & communities love it
+            </h2>
+            <p class="section-sub" data-i18n="home.benefits.sub">
+              Everything you need to finish the Quran together — and nothing you
+              don't.
+            </p>
+            <div class="feature-grid" style="margin-top: 16px">
+              <div class="feature">
+                <div class="ico">⚡</div>
+                <h3 data-i18n="home.benefits.b1t">Live progress</h3>
+                <p data-i18n="home.benefits.b1b">
+                  Every started and completed part updates instantly for the
+                  whole group.
+                </p>
+              </div>
+              <div class="feature">
+                <div class="ico">📖</div>
+                <h3 data-i18n="home.benefits.b2t">Authentic division</h3>
+                <p data-i18n="home.benefits.b2b">
+                  Fair shares along real juz' boundaries and the 604-page Madani
+                  mushaf.
+                </p>
+              </div>
+              <div class="feature">
+                <div class="ico">📱</div>
+                <h3 data-i18n="home.benefits.b3t">Any device</h3>
+                <p data-i18n="home.benefits.b3b">
+                  Built mobile-first. Works on every phone, tablet and laptop —
+                  no install.
+                </p>
+              </div>
+              <div class="feature">
+                <div class="ico">🌍</div>
+                <h3 data-i18n="home.benefits.b4t">Bilingual</h3>
+                <p data-i18n="home.benefits.b4b">
+                  Full English and Bangla interface, with Uthmani and Indo-Pak
+                  scripts.
+                </p>
+              </div>
+              <div class="feature">
+                <div class="ico">🔒</div>
+                <h3 data-i18n="home.benefits.b5t">Private</h3>
+                <p data-i18n="home.benefits.b5b">
+                  No accounts, no tracking. Just a room code shared with the
+                  people you choose.
+                </p>
+              </div>
+              <div class="feature">
+                <div class="ico">🤲</div>
+                <h3 data-i18n="home.benefits.b6t">A lasting reward</h3>
+                <p data-i18n="home.benefits.b6b">
+                  Dedicate your khatmah to a loved one — a beautiful, ongoing
+                  sadaqah jariyah.
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+
         <div class="cards">
           <div class="card" id="createCard">
             <h2 data-i18n="home.create.title">Start a new khatmah</h2>
             <label data-i18n="home.create.count">Number of participants</label>
-            <input id="createCount" type="number" min="1" max="604" value="30" data-i18n-ph="home.create.countPlaceholder" />
-            <label data-i18n="home.create.dedication">Dedication (optional)</label>
-            <input id="createDedication" type="text" data-i18n-ph="home.create.dedicationPlaceholder" />
-            <button id="createBtn" class="btn primary" data-i18n="home.create.button">Create khatmah</button>
+            <input
+              id="createCount"
+              type="number"
+              min="1"
+              max="604"
+              value="30"
+              data-i18n-ph="home.create.countPlaceholder"
+            />
+            <label data-i18n="home.create.dedication"
+              >Dedication (optional)</label
+            >
+            <input
+              id="createDedication"
+              type="text"
+              data-i18n-ph="home.create.dedicationPlaceholder"
+            />
+            <button
+              id="createBtn"
+              class="btn primary"
+              data-i18n="home.create.button"
+            >
+              Create khatmah
+            </button>
           </div>
 
-          <div class="divider" id="homeOr"><span data-i18n="home.or">or</span></div>
+          <div class="divider" id="homeOr">
+            <span data-i18n="home.or">or</span>
+          </div>
 
-          <div class="card">
+          <div class="card" id="joinCard">
             <h2 data-i18n="home.join.title">Join a khatmah</h2>
             <label data-i18n="home.join.code">Room code</label>
-            <input id="joinCode" type="text" autocomplete="off" style="text-transform: uppercase" data-i18n-ph="home.join.codePlaceholder" />
+            <input
+              id="joinCode"
+              type="text"
+              autocomplete="off"
+              style="text-transform: uppercase"
+              data-i18n-ph="home.join.codePlaceholder"
+            />
             <label data-i18n="home.join.name">Your name</label>
-            <input id="joinName" type="text" autocomplete="name" data-i18n-ph="home.join.namePlaceholder" />
+            <input
+              id="joinName"
+              type="text"
+              autocomplete="name"
+              data-i18n-ph="home.join.namePlaceholder"
+            />
             <label data-i18n="home.join.id">Your ID</label>
-            <input id="joinId" type="text" autocomplete="off" data-i18n-ph="home.join.idPlaceholder" />
-            <button id="joinBtn" class="btn primary" data-i18n="home.join.button">Join</button>
+            <input
+              id="joinId"
+              type="text"
+              autocomplete="off"
+              data-i18n-ph="home.join.idPlaceholder"
+            />
+            <button
+              id="joinBtn"
+              class="btn primary"
+              data-i18n="home.join.button"
+            >
+              Join
+            </button>
           </div>
         </div>
         <p id="homeError" class="error" hidden></p>
+
+        <section class="section faq" id="faqSection" style="margin-top: 40px">
+          <h2 class="section-title" data-i18n="home.faq.title">
+            Frequently asked questions
+          </h2>
+          <div class="faq" style="margin-top: 16px">
+            <details>
+              <summary data-i18n="home.faq.q1">
+                What is a Quran khatmah?
+              </summary>
+              <p data-i18n="home.faq.a1">
+                A khatmah is completing the entire Quran. Here a group shares
+                the work so the whole Quran is finished together.
+              </p>
+            </details>
+            <details>
+              <summary data-i18n="home.faq.q2">
+                Is it free? Do I need an account?
+              </summary>
+              <p data-i18n="home.faq.a2">
+                It's 100% free with no signup. Create a room, share the code,
+                and begin — no email or password.
+              </p>
+            </details>
+            <details>
+              <summary data-i18n="home.faq.q3">
+                How is the Quran divided?
+              </summary>
+              <p data-i18n="home.faq.a3">
+                Along authentic juz' boundaries and the 604-page Madani mushaf,
+                so every share is fair and accurate.
+              </p>
+            </details>
+            <details>
+              <summary data-i18n="home.faq.q4">
+                Can we join from different places?
+              </summary>
+              <p data-i18n="home.faq.a4">
+                Yes — anyone with the code can join from any device, and
+                progress syncs live for everyone.
+              </p>
+            </details>
+            <details>
+              <summary data-i18n="home.faq.q5">
+                Which scripts and languages are supported?
+              </summary>
+              <p data-i18n="home.faq.a5">
+                Madani/Uthmani and Indo-Pak scripts, with a full English and
+                Bangla (বাংলা) interface.
+              </p>
+            </details>
+          </div>
+        </section>
+
+        <!-- devxhub promo band -->
+        <section class="promo" id="promoSection">
+          <div>
+            <h2 data-i18n="promo.title">
+              Need an Islamic app for your community?
+            </h2>
+            <p data-i18n="promo.body">
+              We build custom Islamic apps — prayer times, Quran features,
+              donation systems and community tools.
+            </p>
+            <a
+              class="btn primary"
+              href="https://www.devxhub.com/contact"
+              target="_blank"
+              rel="noopener"
+              data-i18n="promo.cta"
+              >Hire App Developers →</a
+            >
+          </div>
+          <img
+            class="promo-img"
+            src="/images/cta.webp"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            width="600"
+            height="400"
+          />
+        </section>
       </section>
 
       <!-- ROOM VIEW -->
       <section id="roomView" class="view" hidden>
         <div id="completedBanner" class="completed" hidden>
           <h2 data-i18n="completed.title">The khatmah is complete 🎉</h2>
-          <p data-i18n="completed.subtitle">May Allah accept it from everyone.</p>
+          <p data-i18n="completed.subtitle">
+            May Allah accept it from everyone.
+          </p>
         </div>
 
-        <div class="roomhead">
-          <div>
-            <span class="muted" data-i18n="room.code">Room code</span>
-            <div class="roomcode" id="roomCode">——</div>
+        <div class="card" style="margin-bottom: 18px">
+          <div class="roomhead">
+            <div>
+              <span class="muted" data-i18n="room.code">Room code</span>
+              <div class="roomcode" id="roomCode">——</div>
+            </div>
+            <div id="dedicationWrap" class="dedication" hidden>
+              <span class="muted" data-i18n="room.dedication">Dedication</span>
+              <div id="dedicationText" dir="auto"></div>
+            </div>
+            <div class="sharebox">
+              <button id="shareBtn" class="btn ghost" data-i18n="room.share">
+                Copy invite link
+              </button>
+              <button
+                id="shareAdminBtn"
+                class="btn ghost"
+                data-i18n="admin.shareAdmin"
+                hidden
+              >
+                Copy admin link
+              </button>
+            </div>
           </div>
-          <div id="dedicationWrap" class="dedication" hidden>
-            <span class="muted" data-i18n="room.dedication">Dedication</span>
-            <div id="dedicationText" dir="auto"></div>
-          </div>
-          <div class="sharebox">
-            <button id="shareBtn" class="btn ghost" data-i18n="room.share">Copy invite link</button>
-            <button id="shareAdminBtn" class="btn ghost" data-i18n="admin.shareAdmin" hidden>Copy admin link</button>
-          </div>
-        </div>
 
-        <div class="progresswrap">
-          <div class="progressbar"><div id="progressFill" class="progressfill"></div></div>
-          <div id="progressText" class="progresstext"></div>
+          <div class="progresswrap">
+            <div class="progressbar">
+              <div id="progressFill" class="progressfill"></div>
+            </div>
+            <div id="progressText" class="progresstext"></div>
+          </div>
         </div>
 
         <div id="yourPart" class="yourpart"></div>
@@ -105,10 +564,28 @@
           <aside>
             <div id="adminPanel" class="adminpanel" hidden>
               <h3 data-i18n="admin.title">Admin</h3>
-              <p class="muted small" data-i18n="admin.youAreAdmin">You are the admin of this khatmah.</p>
-              <button id="exportBtn" class="btn primary" data-i18n="admin.export" hidden>Export proof &amp; close</button>
-              <p class="muted small" id="exportHint" data-i18n="admin.exportHint" hidden>Available once the khatmah is complete.</p>
-              <button id="resetBtn" class="btn danger" data-i18n="admin.reset">Reset khatmah</button>
+              <p class="muted small" data-i18n="admin.youAreAdmin">
+                You are the admin of this khatmah.
+              </p>
+              <button
+                id="exportBtn"
+                class="btn primary"
+                data-i18n="admin.export"
+                hidden
+              >
+                Export proof &amp; close
+              </button>
+              <p
+                class="muted small"
+                id="exportHint"
+                data-i18n="admin.exportHint"
+                hidden
+              >
+                Available once the khatmah is complete.
+              </p>
+              <button id="resetBtn" class="btn danger" data-i18n="admin.reset">
+                Reset khatmah
+              </button>
             </div>
             <h3 data-i18n="feed.title">Activity</h3>
             <ul id="feed" class="feed"></ul>
@@ -120,9 +597,251 @@
     <div id="toast" class="toast" hidden></div>
 
     <footer class="sitefooter">
-      © <span id="footerYear"></span>
-      <a href="https://www.devxhub.com" target="_blank" rel="noopener">Devxhub Limited</a>
-      · <span data-i18n="footer.rights">All rights reserved.</span>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img
+            src="/images/site-logo-with-devxhub.webp"
+            width="155"
+            height="30"
+            alt="Devxhub – leading custom software development company"
+          />
+          <p>A Leading Software Development Company</p>
+          <a
+            class="footer-pill"
+            href="https://www.devxhub.com/contact"
+            target="_blank"
+            rel="noopener"
+            >Contact Us Now</a
+          >
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="https://www.devxhub.com/about" target="_blank" rel="noopener"
+            >About Us</a
+          >
+          <a
+            href="https://www.devxhub.com/career"
+            target="_blank"
+            rel="noopener"
+            >Career</a
+          >
+          <a href="https://www.devxhub.com/blog" target="_blank" rel="noopener"
+            >Blog</a
+          >
+          <a
+            href="https://www.devxhub.com/contact"
+            target="_blank"
+            rel="noopener"
+            >Contact Us</a
+          >
+          <a
+            href="https://www.devxhub.com/services"
+            target="_blank"
+            rel="noopener"
+            >Services</a
+          >
+          <a
+            href="https://www.devxhub.com/our-process"
+            target="_blank"
+            rel="noopener"
+            >Our Process</a
+          >
+          <a href="https://www.devxhub.com/faq" target="_blank" rel="noopener"
+            >FAQ</a
+          >
+          <a href="https://www.devxhub.com/tools" target="_blank" rel="noopener"
+            >Tools</a
+          >
+        </div>
+        <div class="footer-col">
+          <h4>Global Impact</h4>
+          <a
+            href="https://www.devxhub.com/services/it-staff-augmentation-services-usa"
+            target="_blank"
+            rel="noopener"
+            >IT Staff Augmentation</a
+          >
+          <a
+            href="https://www.devxhub.com/services/full-stack-development"
+            target="_blank"
+            rel="noopener"
+            >Full Stack Development</a
+          >
+          <a
+            href="https://www.devxhub.com/services/mobile-application-development"
+            target="_blank"
+            rel="noopener"
+            >Mobile Application Development</a
+          >
+          <a
+            href="https://www.devxhub.com/services/custom-software-development"
+            target="_blank"
+            rel="noopener"
+            >Custom &amp; Enterprise Software Development</a
+          >
+          <a
+            href="https://www.devxhub.com/services/mvp-saas-end-to-end-development"
+            target="_blank"
+            rel="noopener"
+            >MVP, SaaS, End-to-End Development</a
+          >
+          <a
+            href="https://www.devxhub.com/services/ai-app-development-integration"
+            target="_blank"
+            rel="noopener"
+            >AI App Development &amp; Integration</a
+          >
+          <a
+            href="https://www.devxhub.com/services/devops-solutions"
+            target="_blank"
+            rel="noopener"
+            >DevOps &amp; Cloud Solutions</a
+          >
+        </div>
+        <div class="footer-col">
+          <h4>Collaboration</h4>
+          <a
+            href="https://calendly.com/devxhub/15min"
+            target="_blank"
+            rel="noopener"
+            >Book a Free Call</a
+          >
+          <a
+            href="https://www.devxhub.com/contact"
+            target="_blank"
+            rel="noopener"
+            >Partner</a
+          >
+          <a
+            href="https://www.devxhub.com/contact"
+            target="_blank"
+            rel="noopener"
+            >Request a Quote</a
+          >
+        </div>
+      </div>
+
+      <div class="footer-offices">
+        <div class="office">
+          <img class="flag" src="/images/bangladesh.svg" alt="Bangladesh" />
+          <h5>Bangladesh</h5>
+          <div class="office-row addr">
+            <img src="/images/address.svg" alt="" aria-hidden="true" />
+            <div>158/27, Kazla, Boalia,<br />Rajshahi-6204, Bangladesh</div>
+          </div>
+          <div class="office-row tel">
+            <img src="/images/call.svg" alt="" aria-hidden="true" />
+            <a href="tel:+8801326506464">+880 1326 506464</a>
+          </div>
+        </div>
+        <div class="office">
+          <img class="flag" src="/images/usa.svg" alt="USA" />
+          <h5>USA</h5>
+          <div class="office-row addr">
+            <img src="/images/address.svg" alt="" aria-hidden="true" />
+            <div>
+              903 1st Street North #1061<br />Hopkins, MN 55343, United States
+            </div>
+          </div>
+          <div class="office-row tel">
+            <img src="/images/call.svg" alt="" aria-hidden="true" />
+            <a href="tel:+16123007711">+1 612 300-7711</a>
+          </div>
+        </div>
+        <div class="office">
+          <img class="flag" src="/images/finland.svg" alt="Finland" />
+          <h5>Finland</h5>
+          <div class="office-row addr">
+            <img src="/images/address.svg" alt="" aria-hidden="true" />
+            <div>Viulutie 1 A 1, 00420<br />Helsinki, Uusimaa, Finland</div>
+          </div>
+          <div class="office-row tel">
+            <img src="/images/call.svg" alt="" aria-hidden="true" />
+            <a href="tel:+358402545717">+358 402545717</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          © <span id="footerYear"></span>
+          <a href="https://www.devxhub.com" target="_blank" rel="noopener"
+            >Devxhub Limited,</a
+          >
+          All Rights Reserved. &nbsp;|&nbsp;
+          <a
+            href="https://www.devxhub.com/privacy-policy"
+            target="_blank"
+            rel="noopener"
+            >Privacy Policy</a
+          >
+          &nbsp;|&nbsp;
+          <a
+            href="https://www.devxhub.com/terms-of-use"
+            target="_blank"
+            rel="noopener"
+            >Terms of Use</a
+          >
+        </div>
+        <div class="footer-actions">
+          <span class="clutch">
+            <img class="clutch-logo" src="/images/clutch.svg" alt="Clutch" />
+            <img
+              class="clutch-star"
+              src="/images/star1.svg"
+              alt=""
+              aria-hidden="true"
+            />
+            <span>5.0</span>
+          </span>
+          <div class="socials">
+            <a
+              href="https://www.linkedin.com/company/devxhubltd/"
+              target="_blank"
+              rel="noopener"
+              aria-label="Devxhub LinkedIn"
+              ><img src="/images/linkedin.svg" alt="LinkedIn"
+            /></a>
+            <a
+              href="https://github.com/devxhub"
+              target="_blank"
+              rel="noopener"
+              aria-label="Devxhub GitHub"
+              ><img src="/images/github.svg" alt="GitHub"
+            /></a>
+            <a
+              href="https://www.facebook.com/devxhub/"
+              target="_blank"
+              rel="noopener"
+              aria-label="Devxhub Facebook"
+              ><img src="/images/facebook.svg" alt="Facebook"
+            /></a>
+            <a
+              href="https://www.youtube.com/@devxhub"
+              target="_blank"
+              rel="noopener"
+              aria-label="Devxhub YouTube"
+              ><img src="/images/youtube.svg" alt="YouTube"
+            /></a>
+            <a
+              href="https://x.com/devxhubltd"
+              target="_blank"
+              rel="noopener"
+              aria-label="Devxhub X"
+              ><img src="/images/twitter.svg" alt="X"
+            /></a>
+          </div>
+        </div>
+      </div>
+
+      <img
+        class="footer-illustration"
+        src="/images/devxhub-footer.svg"
+        alt=""
+        aria-hidden="true"
+        width="1280"
+        height="264"
+      />
     </footer>
 
     <script src="/socket.io/socket.io.js"></script>

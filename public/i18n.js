@@ -39,6 +39,9 @@
     (root || document).querySelectorAll('[data-i18n-ph]').forEach((el) => {
       el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));
     });
+    (root || document).querySelectorAll('[data-i18n-aria]').forEach((el) => {
+      el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
+    });
   }
 
   window.I18n = { load, t, apply, get lang() { return current; }, isRTL: () => RTL.includes(current) };

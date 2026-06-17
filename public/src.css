@@ -1,0 +1,767 @@
+@import 'tailwindcss';
+
+/* Class-based dark mode (toggled on <html> by app.js; dark is the default). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===== devxhub-style tokens: indigo + yellow, green reserved for Qur'an ===== */
+:root {
+  --background: #f4f2fb;
+  --foreground: #1c1340;
+  --card: #ffffff;
+  --card-foreground: #1c1340;
+  --muted: #efedf8;
+  --muted-foreground: #6f679a;
+  --border: #e6e2f2;
+  --input: #e6e2f2;
+  --ring: #5b4bd6;
+
+  --primary: #ffd700; /* devxhub brand yellow */
+  --primary-foreground: #1b1340;
+  --accent: #ffd700;
+  --destructive: #c0392b;
+  --destructive-foreground: #ffffff;
+
+  --quran: #14794a; /* green for Qur'an / part elements */
+  --quran-2: #2f9d63;
+  --amber: #c8881f;
+
+  --hero-from: #efe9ff;
+  --hero-to: #ffffff;
+  --panel: #ffffff;
+
+  /* footer is always dark indigo, like the reference */
+  --footer-bg: #120736;
+  --footer-fg: #999999;
+  --footer-head: #f1f1f2;
+
+  --radius: 16px;
+  --shadow: 0 10px 34px rgba(28, 19, 64, 0.1);
+}
+
+.dark {
+  --background: #171132;
+  --foreground: #d8d2f0;
+  --card: #221a4e;
+  --card-foreground: #ece8fb;
+  --muted: #2c2358;
+  --muted-foreground: #a79fce;
+  --border: #2e2660;
+  --input: #2e2660;
+  --ring: #f5d544;
+
+  --primary: #ffd700;
+  --primary-foreground: #1b1340;
+  --accent: #ffd700;
+  --destructive: #e06a6a;
+  --destructive-foreground: #160606;
+
+  --quran: #2f9d63;
+  --quran-2: #43b07a;
+  --amber: #e0b54a;
+
+  --hero-from: #2a2056;
+  --hero-to: #1b1340;
+  --panel: #221a4e;
+
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-destructive: var(--destructive);
+  --color-quran: var(--quran);
+
+  --font-sans: 'Poppins', 'Noto Sans Bengali', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --radius-card: var(--radius);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  [hidden] {
+    display: none !important;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem; /* keep anchor targets clear of the sticky header */
+  }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-sans);
+    background: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+  }
+  .dark body {
+    background:
+      radial-gradient(90% 60% at 50% -10%, color-mix(in srgb, var(--primary) 9%, transparent) 0%, transparent 60%),
+      var(--background);
+  }
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+  }
+  a {
+    color: inherit;
+  }
+  .arabic {
+    font-family: 'Amiri Quran', 'Noto Naskh Arabic', 'Traditional Arabic', serif;
+    direction: rtl;
+  }
+  .arabic.indopak {
+    font-family: 'Noto Naskh Arabic', 'Amiri Quran', serif;
+  }
+  html[dir='rtl'] body {
+    font-family: 'Noto Naskh Arabic', var(--font-sans);
+  }
+}
+
+/* ===================== components ===================== */
+@layer components {
+  /* ---- devxhub corporate header (always dark) ---- */
+  .site-header {
+    @apply sticky top-0 z-40;
+    background: #1a1139;
+    border-bottom: 1px solid #281d51;
+  }
+  .site-header-inner {
+    @apply mx-auto flex h-20 max-w-6xl items-center gap-4 px-4 sm:px-6;
+  }
+  .site-header .logo {
+    @apply flex shrink-0 items-center;
+  }
+  .site-header .logo img {
+    @apply h-6 w-auto;
+  }
+  .nav {
+    @apply ms-2 hidden flex-1 items-center gap-5 text-base font-normal xl:gap-8 lg:flex;
+  }
+  .nav-link {
+    @apply whitespace-nowrap text-white no-underline transition-colors;
+  }
+  .nav-link:hover {
+    color: #ffd700;
+  }
+  .has-dropdown {
+    @apply relative flex items-center;
+  }
+  .has-dropdown .caret {
+    @apply ms-0.5 inline-block text-sm transition-transform;
+  }
+  .has-dropdown:hover .caret {
+    transform: rotate(180deg);
+  }
+  .dropdown {
+    @apply pointer-events-none absolute start-0 top-[150%] z-10 flex min-w-[320px] flex-col rounded-[10px] p-2 opacity-0 shadow-2xl transition-all;
+    background: linear-gradient(145deg, #2a1e56 12%, #3d2c79 90%);
+  }
+  .has-dropdown:hover .dropdown,
+  .has-dropdown:focus-within .dropdown {
+    @apply pointer-events-auto top-full opacity-100;
+  }
+  .dropdown a {
+    @apply border-b border-white/10 px-3 py-3 text-sm font-medium no-underline transition-colors last:border-b-0;
+    color: #f1f1f2;
+  }
+  .dropdown a:hover {
+    color: #ffd700;
+  }
+  .cta-call {
+    @apply hidden whitespace-nowrap rounded-full px-6 py-2.5 text-sm font-bold no-underline transition-colors lg:inline-flex;
+    background: #ffd700;
+    color: #1d1a20;
+  }
+  .cta-call:hover {
+    filter: brightness(1.05);
+  }
+  .menu-btn {
+    @apply ms-auto inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-1.5 text-base font-medium lg:hidden;
+    background: #ffd700;
+    color: #1d1a20;
+  }
+  .menu-btn .bars {
+    @apply flex flex-col gap-1;
+  }
+  .menu-btn .bars span {
+    @apply block h-0.5 w-5 rounded;
+    background: #0e0f18;
+  }
+  .mobile-menu {
+    @apply flex flex-col gap-1 px-4 pb-4 lg:hidden;
+    border-top: 1px solid #281d51;
+  }
+  .mobile-menu a {
+    @apply py-3 text-white no-underline;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .mobile-menu a:hover {
+    color: #ffd700;
+  }
+  .mobile-menu .cta-call {
+    @apply mt-3 inline-flex justify-center border-b-0;
+  }
+
+  /* ---- in-page app bar (theme-aware: brand + lang/script/theme) ---- */
+  .appbar {
+    @apply mx-auto mb-4 flex w-full max-w-5xl items-center justify-between gap-3;
+  }
+  .app-brand {
+    @apply flex items-center gap-2 no-underline;
+    color: var(--foreground);
+  }
+  .brand-mark {
+    @apply text-2xl leading-none;
+    color: var(--primary);
+  }
+  .app-name {
+    @apply text-base font-bold;
+  }
+  .controls {
+    @apply flex items-center gap-2 sm:gap-3;
+  }
+  .ctrl {
+    @apply flex flex-col gap-1 text-[11px];
+    color: var(--muted-foreground);
+  }
+  .ctrl select {
+    @apply rounded-full px-3 py-1.5 text-sm;
+    background: var(--card);
+    color: var(--card-foreground);
+    border: 1px solid var(--border);
+  }
+  .icon-btn {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-full border text-lg transition;
+    background: var(--card);
+    border-color: var(--border);
+    color: var(--foreground);
+  }
+  .icon-btn:hover {
+    background: var(--muted);
+  }
+
+  /* ---- layout ---- */
+  main {
+    @apply mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-8;
+  }
+  .view {
+    animation: fade 0.25s ease;
+  }
+
+  /* ---- surfaces ---- */
+  .card {
+    @apply rounded-2xl border p-5 sm:p-6;
+    background: var(--card);
+    color: var(--card-foreground);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+  .card h2 {
+    @apply mt-0 mb-1 text-lg font-bold;
+    color: var(--quran);
+  }
+  .cards {
+    @apply flex flex-col gap-5 md:flex-row md:items-stretch;
+  }
+  .cards > .card {
+    @apply flex-1;
+  }
+  .divider {
+    @apply flex items-center justify-center text-sm;
+    color: var(--muted-foreground);
+  }
+  .muted {
+    color: var(--muted-foreground);
+  }
+  .small {
+    font-size: 0.78rem;
+  }
+  .error {
+    @apply mt-3 font-semibold;
+    color: var(--destructive);
+  }
+
+  /* ---- form controls ---- */
+  label {
+    @apply mt-3 mb-1.5 block text-sm font-medium;
+    color: var(--muted-foreground);
+  }
+  input,
+  textarea {
+    @apply w-full rounded-xl border px-3 py-2.5 text-[15px];
+    background: color-mix(in srgb, var(--card) 92%, var(--muted));
+    color: var(--card-foreground);
+    border-color: var(--input);
+    font-family: inherit;
+  }
+  input::placeholder {
+    color: color-mix(in srgb, var(--muted-foreground) 75%, transparent);
+  }
+  input:focus,
+  textarea:focus {
+    @apply outline-none;
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 35%, transparent);
+  }
+
+  /* ---- buttons (pills) ---- */
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-semibold transition;
+    border: 1px solid transparent;
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .btn:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+  .btn.small {
+    @apply px-3 py-1.5 text-[13px];
+  }
+  .btn.primary {
+    @apply mt-4 w-full;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+  .btn.primary:hover {
+    filter: brightness(1.05);
+  }
+  .btn.ghost {
+    background: transparent;
+    color: var(--foreground);
+    border-color: var(--border);
+  }
+  .btn.ghost:hover {
+    background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  }
+  .btn.danger {
+    background: var(--destructive);
+    color: var(--destructive-foreground);
+  }
+  .btn.start {
+    background: var(--quran-2);
+    color: #fff;
+  }
+  .btn.end {
+    background: var(--amber);
+    color: #20160a;
+  }
+
+  /* ---- pills / badges ---- */
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium;
+    background: color-mix(in srgb, var(--muted) 60%, transparent);
+    color: var(--muted-foreground);
+    border-color: var(--border);
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    background: var(--muted);
+    color: var(--muted-foreground);
+  }
+  .badge.in_progress {
+    background: color-mix(in srgb, var(--amber) 22%, transparent);
+    color: var(--amber);
+  }
+  .badge.done {
+    background: color-mix(in srgb, var(--quran-2) 22%, transparent);
+    color: var(--quran-2);
+  }
+
+  /* ---- room header / progress ---- */
+  .roomhead {
+    @apply flex flex-wrap items-center justify-between gap-4;
+  }
+  .roomcode {
+    @apply text-2xl font-extrabold tracking-wide;
+    color: var(--quran);
+  }
+  .dedication {
+    @apply text-center;
+  }
+  .sharebox {
+    @apply flex flex-wrap gap-2;
+  }
+  .progresswrap {
+    @apply mt-5;
+  }
+  .progressbar {
+    @apply h-2.5 w-full overflow-hidden rounded-full;
+    background: var(--muted);
+  }
+  .progressfill {
+    @apply h-full rounded-full transition-all duration-500;
+    background: linear-gradient(90deg, var(--quran), var(--quran-2));
+  }
+  .progresstext {
+    @apply mt-2 text-sm;
+    color: var(--muted-foreground);
+  }
+
+  /* ---- board / parts ---- */
+  .grid {
+    @apply grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr];
+  }
+  .board {
+    @apply grid gap-3;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+  .part {
+    @apply rounded-xl border p-4;
+    background: var(--card);
+    border-color: var(--border);
+    border-inline-start: 4px solid var(--border);
+  }
+  .part.mine {
+    border-inline-start-color: var(--quran-2);
+  }
+  .part.in_progress {
+    border-inline-start-color: var(--amber);
+  }
+  .part.done {
+    border-inline-start-color: var(--quran);
+  }
+  .part-top {
+    @apply flex items-center justify-between;
+  }
+  .part-idx {
+    @apply text-sm font-bold;
+    color: var(--muted-foreground);
+  }
+  .juz {
+    @apply mt-2 text-sm font-semibold;
+  }
+  .ref {
+    @apply mt-2 rounded-lg p-2;
+    background: color-mix(in srgb, var(--muted) 70%, transparent);
+  }
+  .ref .lbl {
+    @apply text-xs;
+    color: var(--muted-foreground);
+  }
+  .ref .sname {
+    @apply mt-0.5 text-base;
+  }
+  .ayah-text {
+    @apply mt-1 text-lg leading-relaxed;
+  }
+  .assignee {
+    @apply mt-3 flex items-center justify-between gap-2 text-sm;
+  }
+  .actions {
+    @apply mt-3 flex flex-wrap gap-2;
+  }
+  .timer {
+    @apply rounded-md px-1.5 py-0.5 text-xs font-semibold;
+    background: var(--muted);
+    color: var(--muted-foreground);
+  }
+
+  /* ---- your part / admin / feed ---- */
+  .yourpart {
+    @apply my-5;
+  }
+  .yourpart-empty {
+    @apply rounded-2xl border border-dashed p-5 text-center;
+    border-color: var(--quran);
+    color: var(--quran);
+  }
+  .adminpanel {
+    @apply mb-4 rounded-2xl border p-4;
+    background: var(--card);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+  .feed {
+    @apply m-0 max-h-[420px] list-none overflow-auto p-0;
+  }
+  .feed li {
+    @apply border-b px-2.5 py-2 text-sm;
+    border-color: var(--border);
+  }
+  .feed .when {
+    @apply text-[11px];
+    color: var(--muted-foreground);
+  }
+
+  /* ---- completed banner (Qur'an green) ---- */
+  .completed {
+    @apply mb-4 rounded-2xl p-6 text-center text-white;
+    background: linear-gradient(135deg, var(--quran), var(--quran-2));
+    box-shadow: var(--shadow);
+  }
+  .completed h2 {
+    @apply mb-1.5 mt-0;
+  }
+
+  /* ---- toast ---- */
+  .toast {
+    @apply fixed inset-x-0 bottom-6 z-50 mx-auto w-max max-w-[90%] rounded-full px-5 py-3 font-medium text-white;
+    background: #1b1340;
+    box-shadow: var(--shadow);
+  }
+
+  /* ---- landing ---- */
+  .section {
+    @apply mb-10;
+  }
+  .section-title {
+    @apply text-center text-2xl font-extrabold sm:text-3xl;
+  }
+  .section-sub {
+    @apply mx-auto mt-2 max-w-2xl text-center;
+    color: var(--muted-foreground);
+  }
+  .hero {
+    @apply mb-10 rounded-3xl border px-5 py-12 text-center sm:px-8 sm:py-16;
+    background: linear-gradient(160deg, var(--hero-from), var(--hero-to));
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+  .hero h1 {
+    @apply mx-auto max-w-3xl text-3xl font-extrabold leading-tight sm:text-5xl;
+  }
+  .hero .lead {
+    @apply mx-auto mt-4 max-w-2xl text-base sm:text-lg;
+    color: var(--muted-foreground);
+  }
+  .hero-cta {
+    @apply mt-7 flex flex-wrap items-center justify-center gap-3;
+  }
+  .hero-cta .btn {
+    @apply mt-0 w-auto px-7;
+  }
+  .pills {
+    @apply mt-6 flex flex-wrap items-center justify-center gap-2;
+  }
+  .feature-grid {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  .feature {
+    @apply rounded-2xl border p-5;
+    background: var(--card);
+    border-color: var(--border);
+  }
+  .feature .ico {
+    @apply mb-2 text-2xl;
+  }
+  .feature h3 {
+    @apply m-0 text-base font-semibold;
+    color: var(--card-foreground);
+  }
+  .feature p {
+    @apply mt-1.5 text-sm;
+    color: var(--muted-foreground);
+  }
+  .steps {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-3;
+    counter-reset: step;
+  }
+  .step {
+    @apply relative rounded-2xl border p-5;
+    background: var(--card);
+    border-color: var(--border);
+  }
+  .step::before {
+    counter-increment: step;
+    content: counter(step);
+    @apply mb-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold;
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  .step h3 {
+    @apply m-0 text-base font-semibold;
+    color: var(--card-foreground);
+  }
+  .step p {
+    @apply mt-1.5 text-sm;
+    color: var(--muted-foreground);
+  }
+
+  /* ---- FAQ (yellow questions + chevron) ---- */
+  .faq {
+    @apply mx-auto mt-4 max-w-3xl space-y-3;
+  }
+  .faq details {
+    @apply rounded-2xl border px-4 py-3;
+    background: var(--card);
+    border-color: var(--border);
+  }
+  .faq summary {
+    @apply flex cursor-pointer list-none items-center justify-between gap-3 font-semibold;
+    color: var(--foreground);
+  }
+  .dark .faq summary {
+    color: var(--accent);
+  }
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq summary::after {
+    content: '⌄';
+    @apply text-lg leading-none transition-transform;
+    color: var(--accent);
+  }
+  .faq details[open] summary::after {
+    transform: rotate(180deg);
+  }
+  .faq p {
+    @apply mt-2 text-sm;
+    color: var(--muted-foreground);
+  }
+
+  /* ---- promo band ---- */
+  .promo {
+    @apply my-10 grid grid-cols-1 items-center gap-6 rounded-3xl border p-6 sm:p-8 md:grid-cols-[2fr_1fr];
+    background: linear-gradient(120deg, #2a2056, #3a2b78);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  .promo h2 {
+    @apply m-0 text-2xl font-extrabold sm:text-3xl;
+  }
+  .promo p {
+    @apply mt-2 max-w-xl;
+    color: #cfc9e6;
+  }
+  .promo .btn.primary {
+    @apply mt-5 w-auto px-7;
+  }
+  .promo-img {
+    @apply mx-auto h-auto w-full max-w-xs rounded-2xl;
+  }
+
+  /* ---- full footer (always dark indigo) ---- */
+  .sitefooter {
+    @apply mt-10 px-4 pt-12 pb-6 sm:px-8;
+    background: var(--footer-bg);
+    color: var(--footer-fg);
+  }
+  .footer-grid {
+    @apply mx-auto grid max-w-6xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4;
+  }
+  .footer-brand img {
+    @apply h-[30px] w-[155px];
+  }
+  .footer-brand p {
+    @apply mt-4 max-w-[200px] text-sm;
+  }
+  .footer-brand .footer-pill {
+    @apply mt-4 inline-block;
+  }
+  .footer-col h4 {
+    @apply m-0 mb-3 text-xs font-bold uppercase tracking-wider;
+    color: var(--footer-head);
+  }
+  .footer-col a {
+    @apply block py-1 text-sm no-underline transition;
+    color: var(--footer-fg);
+  }
+  .footer-col a:hover {
+    color: var(--primary);
+  }
+  .footer-offices {
+    @apply mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-8 border-t pt-8 sm:grid-cols-3;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .office .flag {
+    @apply mb-1 h-7 w-auto;
+  }
+  .office h5 {
+    @apply m-0 mb-2 text-xl font-bold;
+    color: #f1f1f2;
+  }
+  .office-row {
+    @apply mt-2 flex items-start gap-2 text-sm;
+  }
+  .office-row img {
+    @apply mt-0.5 h-4 w-4 shrink-0;
+  }
+  .office-row.addr {
+    color: var(--footer-fg);
+  }
+  .office-row.tel {
+    color: #f1f1f2;
+  }
+  .office-row a {
+    color: #f1f1f2;
+    text-decoration: none;
+  }
+  .office-row a:hover {
+    color: var(--primary);
+  }
+  .footer-bottom {
+    @apply mx-auto mt-8 flex max-w-6xl flex-col items-center justify-between gap-4 border-t pt-6 text-sm sm:flex-row;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .footer-bottom a {
+    color: var(--footer-fg);
+    text-decoration: none;
+  }
+  .footer-bottom a:hover {
+    color: var(--primary);
+  }
+  .footer-pill {
+    @apply rounded-full px-5 py-2 text-sm font-semibold;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    text-decoration: none;
+  }
+  .socials {
+    @apply flex items-center gap-4;
+  }
+  .socials a {
+    @apply inline-flex transition;
+  }
+  .socials a:hover {
+    opacity: 0.75;
+  }
+  .socials img {
+    @apply h-10 w-10 object-contain;
+  }
+  .clutch {
+    @apply inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium;
+    border-color: var(--footer-fg);
+    color: #f1f1f2;
+  }
+  .clutch-logo {
+    @apply h-3 w-auto;
+  }
+  .clutch-star {
+    @apply h-3 w-3;
+  }
+  .footer-actions {
+    @apply flex flex-col items-center gap-5 sm:flex-row;
+  }
+  .footer-illustration {
+    @apply mx-auto mt-10 block w-full max-w-6xl;
+    opacity: 0.9;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

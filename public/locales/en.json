@@ -1,9 +1,57 @@
 {
   "app": { "title": "Quran Khatmah", "subtitle": "Complete the Quran together" },
   "lang": { "label": "Language" },
+  "theme": { "toggle": "Toggle light / dark theme" },
   "script": { "label": "Script", "uthmani": "Madani / Uthmani", "indopak": "Indo-Pak" },
   "home": {
     "or": "or",
+    "hero": {
+      "title": "Complete the Quran together — one khatmah, many hearts",
+      "lead": "Split the 30 juz' across your family, friends or masjid, claim your part, and watch the whole Quran finish in real time. Free, instant, no signup.",
+      "start": "Start a khatmah",
+      "join": "I have a code",
+      "pill1": "100% free · No signup",
+      "pill2": "Madani & Indo-Pak",
+      "pill3": "English & বাংলা"
+    },
+    "steps": {
+      "title": "Done in three simple steps",
+      "s1t": "Create a room",
+      "s1b": "Pick how many people will join. We divide the Quran fairly for you.",
+      "s2t": "Share the code",
+      "s2b": "Send the room code or link. Everyone joins in one tap — no account needed.",
+      "s3t": "Read & finish together",
+      "s3b": "Claim your part, mark it done, and watch the khatmah complete live."
+    },
+    "benefits": {
+      "title": "Why families & communities love it",
+      "sub": "Everything you need to finish the Quran together — and nothing you don't.",
+      "b1t": "Live progress",
+      "b1b": "Every started and completed part updates instantly for the whole group.",
+      "b2t": "Authentic division",
+      "b2b": "Fair shares along real juz' boundaries and the 604-page Madani mushaf.",
+      "b3t": "Any device",
+      "b3b": "Built mobile-first. Works on every phone, tablet and laptop — no install.",
+      "b4t": "Bilingual",
+      "b4b": "Full English and Bangla interface, with Uthmani and Indo-Pak scripts.",
+      "b5t": "Private",
+      "b5b": "No accounts, no tracking. Just a room code shared with the people you choose.",
+      "b6t": "A lasting reward",
+      "b6b": "Dedicate your khatmah to a loved one — a beautiful, ongoing sadaqah jariyah."
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "q1": "What is a Quran khatmah?",
+      "a1": "A khatmah is completing the entire Quran. Here a group shares the work so the whole Quran is finished together.",
+      "q2": "Is it free? Do I need an account?",
+      "a2": "It's 100% free with no signup. Create a room, share the code, and begin — no email or password.",
+      "q3": "How is the Quran divided?",
+      "a3": "Along authentic juz' boundaries and the 604-page Madani mushaf, so every share is fair and accurate.",
+      "q4": "Can we join from different places?",
+      "a4": "Yes — anyone with the code can join from any device, and progress syncs live for everyone.",
+      "q5": "Which scripts and languages are supported?",
+      "a5": "Madani/Uthmani and Indo-Pak scripts, with a full English and Bangla (বাংলা) interface."
+    },
     "create": {
       "title": "Start a new khatmah",
       "count": "Number of participants",
@@ -47,6 +95,11 @@
     "released": "Part {index} was released by the admin.",
     "reset": "The admin reset the khatmah.",
     "completed": "🎉 The khatmah was completed. May Allah accept it."
+  },
+  "promo": {
+    "title": "Need an Islamic app for your community?",
+    "body": "We build custom Islamic apps — prayer times, Quran features, donation systems and community tools.",
+    "cta": "Hire App Developers →"
   },
   "completed": { "title": "The khatmah is complete 🎉", "subtitle": "May Allah accept it from everyone." },
   "part": {

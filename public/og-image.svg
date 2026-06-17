@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Quran Khatmah — complete the Quran together">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f5132" />
+      <stop offset="1" stop-color="#14794a" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <text x="80" y="150" font-family="Inter, Arial, sans-serif" font-size="120" fill="#c8a24a">۞</text>
+  <text x="80" y="320" font-family="Inter, Arial, sans-serif" font-size="78" font-weight="800" fill="#ffffff">Quran Khatmah</text>
+  <text x="80" y="400" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="500" fill="#dcefe3">Complete the Quran together — free, live, no signup</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="28" fill="#0f5132">
+    <rect x="80" y="470" width="300" height="60" rx="30" fill="#ffffff" />
+    <text x="110" y="509">100% free · No signup</text>
+    <rect x="404" y="470" width="290" height="60" rx="30" fill="#ffffff" />
+    <text x="434" y="509">Madani &amp; Indo-Pak</text>
+    <rect x="718" y="470" width="250" height="60" rx="30" fill="#ffffff" />
+    <text x="748" y="509">English &amp; বাংলা</text>
+  </g>
+  <text x="80" y="590" font-family="Inter, Arial, sans-serif" font-size="24" fill="#bcd8c8">by Devxhub Limited · devxhub.com</text>
+</svg>

@@ -7,8 +7,16 @@
   // ---- persisted prefs ----
   const PREF_LANG = 'khatmah:lang';
   const PREF_SCRIPT = 'khatmah:script';
+  const PREF_THEME = 'khatmah:theme';
   let lang = localStorage.getItem(PREF_LANG) || 'en';
   let script = localStorage.getItem(PREF_SCRIPT) || 'uthmani';
+  let theme = localStorage.getItem(PREF_THEME) || 'dark'; // dark is the default (devxhub look)
+
+  function applyTheme() {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    const btn = $('themeToggle');
+    if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  }
 
   // ---- session ----
   let state = null; // latest RoomState
@@ -37,10 +45,14 @@
   function show(view) {
     $('homeView').hidden = view !== 'home';
     $('roomView').hidden = view !== 'room';
-    // Arriving via a room code means you're joining — hide the "create" card.
+    // Arriving via a room code means you're joining — hide the marketing
+    // landing and the "create" card so only the join form is shown.
     const invited = !!code;
     $('createCard').hidden = invited;
     $('homeOr').hidden = invited;
+    $('landing').hidden = invited;
+    $('faqSection').hidden = invited;
+    $('promoSection').hidden = invited;
   }
   let toastTimer = null;
   function toast(msg) {
@@ -427,6 +439,23 @@
       localStorage.setItem(PREF_SCRIPT, script);
       if (state) render();
     };
+    $('themeToggle').onclick = () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(PREF_THEME, theme);
+      applyTheme();
+    };
+
+    // Mobile nav drawer (devxhub header)
+    const menuBtn = $('menuBtn');
+    const mobileMenu = $('mobileMenu');
+    if (menuBtn && mobileMenu) {
+      const setMenu = (open) => {
+        mobileMenu.hidden = !open;
+        menuBtn.setAttribute('aria-expanded', String(open));
+      };
+      menuBtn.onclick = () => setMenu(mobileMenu.hidden);
+      mobileMenu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+    }
 
     $('createBtn').onclick = createRoom;
     $('joinBtn').onclick = () => {
@@ -483,6 +512,7 @@
   async function boot() {
     await window.I18n.load(lang);
     window.I18n.apply();
+    applyTheme();
     $('footerYear').textContent = new Date().getFullYear();
     setupControls();
 
