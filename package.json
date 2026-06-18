@@ -8,7 +8,9 @@
     "build": "tsc && npm run build:css",
     "build:css": "tailwindcss -i public/src.css -o public/styles.css --minify",
     "watch:css": "tailwindcss -i public/src.css -o public/styles.css --watch",
-    "start": "node dist/server.js",
+    "start": "node --env-file=.env dist/server.js",
+    "start:backend": "npm run build:ts && node --env-file=.env dist/server.js",
+    "build:ts": "tsc",
     "dev": "concurrently -k -n css,srv -c magenta,green \"npm:watch:css\" \"nodemon\"",
     "fetch-data": "node scripts/fetch-data.cjs",
     "test": "node --test dist-test/*.test.js"
