@@ -1,0 +1,185 @@
+name: Production Multi-Arch Build with Docker Build Cloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dockerfile_path:
+        description: "Path to Dockerfile"
+        required: false
+        default: "docker/Dockerfile.prod"
+        type: string
+      use_build_cloud:
+        description: "Use Docker Build Cloud"
+        required: false
+        default: true
+        type: boolean
+
+env:
+  # Registry configuration
+  DOCKERHUB_ORG: ${{ vars.DOCKERHUB_ORG || secrets.DOCKERHUB_ORG || 'dxhltd' }}
+  DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME || secrets.DOCKERHUB_USERNAME || 'devxhublimited' }}
+
+  # Docker Build Cloud configuration (defaults to true for production)
+  DOCKER_ACCOUNT: ${{ vars.DOCKER_ACCOUNT || 'dxhltd' }}
+  CLOUD_BUILDER_NAME: ${{ vars.CLOUD_BUILDER_NAME || 'devxhub' }}
+  USE_BUILD_CLOUD: ${{ github.event_name == 'workflow_dispatch' && inputs.use_build_cloud == false && 'false' || 'true' }}
+
+  # Base image versions for cache consistency (use actual Docker Hub versions)
+  NODE_VERSION: ${{ vars.NODE_VERSION || '22.19.0' }}
+  ALPINE_VERSION: ${{ vars.ALPINE_VERSION || '3.22' }}
+
+  # Build configuration - multi-arch
+  DOCKERFILE_PATH: ${{ inputs.dockerfile_path || 'docker/Dockerfile.prod' }}
+  TARGET_PLATFORM: linux/amd64,linux/arm64
+
+jobs:
+  production-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Generate production image metadata
+        id: meta
+        run: |
+          # Extract repository name
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          SHORT_SHA=${GITHUB_SHA::7}
+
+          # Production tags for multi-arch builds
+          # Best practice: tag with both 'prod' and the specific SHA for easy rollbacks
+          TAGS="${{ env.DOCKERHUB_ORG }}/${REPO_NAME}:prod,${{ env.DOCKERHUB_ORG }}/${REPO_NAME}:prod-${SHORT_SHA}"
+
+          # Set outputs and environment variables
+          echo "image-name=${REPO_NAME}" >> $GITHUB_OUTPUT
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+          echo "IMAGE_TAGS=${TAGS}" >> $GITHUB_ENV
+          echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
+
+          echo "🏭 Production build for: ${REPO_NAME}"
+          echo "📦 Tags: ${TAGS}"
+          echo "🔧 Base image: node:${{ env.NODE_VERSION }}-alpine${{ env.ALPINE_VERSION }}"
+
+      - name: Validate production Dockerfile
+        run: |
+          if [[ ! -f "${{ env.DOCKERFILE_PATH }}" ]]; then
+            echo "❌ Production Dockerfile not found at: ${{ env.DOCKERFILE_PATH }}"
+            ls -la docker/ 2>/dev/null || echo "No docker/ directory found"
+            exit 1
+          fi
+          echo "✅ Production Dockerfile found: ${{ env.DOCKERFILE_PATH }}"
+
+      - name: Setup build environment
+        id: setup
+        run: |
+          if [[ "${{ env.USE_BUILD_CLOUD }}" == "true" ]]; then
+            echo "mode=cloud" >> $GITHUB_OUTPUT
+            echo "description=Docker Build Cloud (Production)" >> $GITHUB_OUTPUT
+            echo "endpoint=${{ env.DOCKER_ACCOUNT }}/${{ env.CLOUD_BUILDER_NAME }}" >> $GITHUB_OUTPUT
+            echo "🚀 Production build using Docker Build Cloud!"
+          else
+            echo "mode=local" >> $GITHUB_OUTPUT
+            echo "description=Local QEMU (Production)" >> $GITHUB_OUTPUT
+            echo "endpoint=" >> $GITHUB_OUTPUT
+            echo "⚠️ Production build using local QEMU emulation"
+          fi
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU (Local builds only)
+        if: steps.setup.outputs.mode == 'local'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+
+      - name: Set up Docker Buildx with Build Cloud
+        if: steps.setup.outputs.mode == 'cloud'
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: cloud
+          endpoint: ${{ steps.setup.outputs.endpoint }}
+          install: true
+
+      - name: Set up Docker Buildx (Local)
+        if: steps.setup.outputs.mode == 'local'
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          install: true
+
+      - name: Verify production builder
+        run: |
+          echo "🔍 Production build configuration:"
+          docker buildx ls
+          echo ""
+          if [[ "${{ steps.setup.outputs.mode }}" == "cloud" ]]; then
+            echo "✅ Using Docker Build Cloud for production multi-arch:"
+            echo "   Endpoint: ${{ steps.setup.outputs.endpoint }}"
+          else
+            echo "⚠️ Using local buildx for multi-arch production (slower due to QEMU emulation)"
+          fi
+
+      - name: Build and push production Multi-Arch image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE_PATH }}
+          platforms: ${{ env.TARGET_PLATFORM }}
+          push: true
+          tags: ${{ env.IMAGE_TAGS }}
+          build-args: |
+            NODE_VERSION=${{ env.NODE_VERSION }}
+            ALPINE_VERSION=${{ env.ALPINE_VERSION }}
+            NODE_ENV=production
+            BUILD_VERSION=${{ env.SHORT_SHA }}
+            PROJECT_NAME=${{ steps.meta.outputs.image-name }}
+          labels: |
+            org.opencontainers.image.title=${{ steps.meta.outputs.image-name }}
+            org.opencontainers.image.description=Production Multi-Arch Express + Socket.IO backend
+            org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ env.SHORT_SHA }}
+            org.opencontainers.image.created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=MIT
+            devxhub.project.type=nodejs
+            devxhub.build.environment=production
+            devxhub.build.platform=multi-arch
+            devxhub.build.optimized=true
+
+      - name: Production build summary
+        run: |
+          echo "## 🏭 Production Multi-Arch Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Environment** | Production |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image** | ${{ steps.meta.outputs.image-name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Platforms** | ${{ env.TARGET_PLATFORM }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Build Mode** | ${{ steps.setup.outputs.description }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version** | \`${{ env.SHORT_SHA }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏷️ Production Tags:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ env.IMAGE_TAGS }}" | tr ',' '\n' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Production deployment ready
+        run: |
+          echo "🎉 Production Multi-Arch build successful!"
+          echo "📦 Production tags pushed:"
+          echo "${{ env.IMAGE_TAGS }}" | tr ',' '\n' | sed 's/^/  - /'
