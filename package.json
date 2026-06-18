@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js",
+    "build:ts": "tsc",
+    "start": "node --env-file=.env dist/server.js",
+    "start:backend": "npm run build:ts && node --env-file=.env dist/server.js",
     "dev": "nodemon",
     "fetch-data": "node scripts/fetch-data.cjs",
     "test": "node --test dist-test/*.test.js"

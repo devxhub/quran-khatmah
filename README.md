@@ -68,7 +68,6 @@ src/            TypeScript backend
   db.ts           SQLite setup
   server.ts       Express + Socket.IO wiring
   types.ts        shared domain types
-public/         front-end (HTML/CSS/JS) + i18n locales
 data/           bundled Quran datasets (built by scripts/fetch-data.cjs)
 scripts/        one-time data builder
 ```

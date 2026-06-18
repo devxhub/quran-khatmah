@@ -1,0 +1,83 @@
+# syntax=docker/dockerfile:1
+#
+# Production image for the Quran Khatmah backend (Express + Socket.IO, Node ESM).
+# Multi-stage + multi-arch friendly (linux/amd64, linux/arm64). better-sqlite3 is
+# a native addon, so it is compiled in the builder stage and the prod-only
+# node_modules are copied into a slim, non-root runtime stage.
+
+# Global build args (overridable from CI build-args; sane defaults for standalone builds).
+ARG NODE_VERSION=22.19.0
+ARG ALPINE_VERSION=3.22
+
+# ---------------------------------------------------------------------------
+# Stage 1 — builder: install deps, compile the native addon, build TypeScript
+# ---------------------------------------------------------------------------
+FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS builder
+
+# Toolchain required to compile better-sqlite3's native addon.
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
+
+# Install with the lockfile for reproducible builds (needs dev deps for tsc).
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Compile TypeScript (src -> dist). Skip build:css — this is backend-only.
+COPY tsconfig.json ./
+COPY src ./src
+RUN npx tsc
+
+# Drop dev dependencies; keeps the compiled better-sqlite3 prod dependency.
+RUN npm prune --omit=dev
+
+# ---------------------------------------------------------------------------
+# Stage 2 — runtime: slim, non-root image with only prod artifacts
+# ---------------------------------------------------------------------------
+FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS runtime
+
+# libstdc++ — runtime lib for the better-sqlite3 native addon.
+# tini — lightweight init for proper PID 1 signal handling / zombie reaping.
+RUN apk add --no-cache libstdc++ tini
+
+# Build metadata (passed from CI) surfaced as env + OCI labels.
+ARG NODE_ENV=production
+ARG BUILD_VERSION=dev
+ARG PROJECT_NAME=quran-khatmah
+
+LABEL org.opencontainers.image.title="${PROJECT_NAME}" \
+      org.opencontainers.image.description="Production Multi-Arch Express + Socket.IO backend" \
+      org.opencontainers.image.source="https://github.com/devxhub/quran-khatmah" \
+      org.opencontainers.image.version="${BUILD_VERSION}" \
+      org.opencontainers.image.licenses="MIT" \
+      devxhub.project.type="nodejs" \
+      devxhub.build.environment="production" \
+      devxhub.build.platform="multi-arch"
+
+ENV NODE_ENV=${NODE_ENV} \
+    PORT=3000 \
+    DB_PATH=/data/khatmah.db
+
+WORKDIR /app
+
+# Copy prod-only node_modules (with compiled addon) and the build output.
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY package.json ./
+# Offline Quran datasets read at runtime from ./data.
+COPY data ./data
+
+# Writable location for the SQLite DB (WAL writes .db/-shm/-wal here). Mount a
+# volume here in production so data survives restarts.
+RUN mkdir -p /data && chown -R node:node /data /app
+VOLUME ["/data"]
+
+EXPOSE 3000
+USER node
+
+# Liveness check against the app's /healthz endpoint (honours $PORT).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:'+(process.env.PORT||3000)+'/healthz',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+
+ENTRYPOINT ["tini", "--"]
+CMD ["node", "dist/server.js"]
