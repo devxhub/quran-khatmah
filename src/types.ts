@@ -38,8 +38,9 @@ export interface PartDescriptor {
 }
 
 export interface Assignee {
-  id: string;
+  id: string; // internal unique key (auto-generated, never shown)
   name: string;
+  displayId?: string; // human-entered identifier (NID/mobile) shown in UI + certificate
 }
 
 export interface PartState extends PartDescriptor {

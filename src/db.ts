@@ -44,4 +44,18 @@ db.exec(`
   );
 `);
 
+// Lightweight, idempotent migrations: participant_id is now an internal unique
+// key, while the human-entered identifier (NID/mobile) lives in *_did columns.
+// SQLite has no "ADD COLUMN IF NOT EXISTS", so guard against the duplicate-column
+// error on already-migrated databases.
+function addColumn(table: string, ddl: string): void {
+  try {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+  } catch (err) {
+    if (!(err instanceof Error) || !/duplicate column name/i.test(err.message)) throw err;
+  }
+}
+addColumn('participants', 'display_id TEXT');
+addColumn('parts', 'assignee_did TEXT');
+
 export default db;

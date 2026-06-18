@@ -33,6 +33,7 @@ interface PartRow {
   data_json: string;
   assignee_id: string | null;
   assignee_nm: string | null;
+  assignee_did: string | null;
   status: 'open' | 'in_progress' | 'done';
   started_at: number | null;
   ended_at: number | null;
@@ -42,19 +43,19 @@ function logEvent(code: string, key: string, params: Record<string, string | num
   db.prepare('INSERT INTO events (code, message, at) VALUES (?,?,?)').run(code, JSON.stringify({ key, params }), now());
 }
 
-/** Register/refresh a participant in the room's roster (idempotent). */
-function upsertParticipant(code: string, id: string, name: string): void {
+/** Register/refresh a participant in the room's roster (idempotent on the key). */
+function upsertParticipant(code: string, id: string, name: string, displayId: string): void {
   db.prepare(
-    'INSERT INTO participants (code, participant_id, name, joined_at) VALUES (?,?,?,?) ' +
-      'ON CONFLICT(code, participant_id) DO UPDATE SET name = excluded.name'
-  ).run(code, id, name, now());
+    'INSERT INTO participants (code, participant_id, name, display_id, joined_at) VALUES (?,?,?,?,?) ' +
+      'ON CONFLICT(code, participant_id) DO UPDATE SET name = excluded.name, display_id = excluded.display_id'
+  ).run(code, id, name, displayId || null, now());
 }
 
 function readParticipants(code: string): Assignee[] {
   const rows = db
-    .prepare('SELECT participant_id, name FROM participants WHERE code = ? ORDER BY joined_at ASC')
-    .all(code) as { participant_id: string; name: string }[];
-  return rows.map((r) => ({ id: r.participant_id, name: r.name }));
+    .prepare('SELECT participant_id, name, display_id FROM participants WHERE code = ? ORDER BY joined_at ASC')
+    .all(code) as { participant_id: string; name: string; display_id: string | null }[];
+  return rows.map((r) => ({ id: r.participant_id, name: r.name, displayId: r.display_id || '' }));
 }
 
 export function getRoom(code: string): RoomRow | undefined {
@@ -93,15 +94,16 @@ export function createRoom(opts: { participantCount: number; dedication?: string
 }
 
 /** Register a participant in the lobby (idempotent on reconnect/rename). */
-export function joinLobby(opts: { code: string; name: string; participantId: string }): void {
+export function joinLobby(opts: { code: string; name: string; participantId: string; displayId?: string }): void {
   requireRoom(opts.code);
   const name = (opts.name || '').trim();
   const id = (opts.participantId || '').trim();
+  const displayId = (opts.displayId || '').trim();
   if (!name) throw new Error('NO_NAME');
   if (!id) throw new Error('NO_ID');
 
   const existing = db.prepare('SELECT 1 FROM participants WHERE code = ? AND participant_id = ?').get(opts.code, id);
-  upsertParticipant(opts.code, id, name);
+  upsertParticipant(opts.code, id, name, displayId);
   if (!existing) logEvent(opts.code, 'lobby_joined', { name });
 }
 
@@ -137,19 +139,25 @@ function refreshStatus(code: string): void {
   }
 }
 
-export function joinRoom(opts: { code: string; name: string; participantId: string }): { partIndex: number; rejoined: boolean } {
+export function joinRoom(opts: {
+  code: string;
+  name: string;
+  participantId: string;
+  displayId?: string;
+}): { partIndex: number; rejoined: boolean } {
   requireRoom(opts.code);
   const name = (opts.name || '').trim();
   const id = (opts.participantId || '').trim();
+  const displayId = (opts.displayId || '').trim();
   if (!name) throw new Error('NO_NAME');
   if (!id) throw new Error('NO_ID');
-  upsertParticipant(opts.code, id, name); // keep the roster complete for late/active joiners
+  upsertParticipant(opts.code, id, name, displayId); // keep the roster complete for late/active joiners
 
   const existing = db.prepare('SELECT idx FROM parts WHERE code = ? AND assignee_id = ?').get(opts.code, id) as
     | { idx: number }
     | undefined;
   if (existing) {
-    db.prepare('UPDATE parts SET assignee_nm = ? WHERE code = ? AND assignee_id = ?').run(name, opts.code, id);
+    db.prepare('UPDATE parts SET assignee_nm = ?, assignee_did = ? WHERE code = ? AND assignee_id = ?').run(name, displayId || null, opts.code, id);
     return { partIndex: existing.idx, rejoined: true };
   }
 
@@ -158,8 +166,8 @@ export function joinRoom(opts: { code: string; name: string; participantId: stri
     .get(opts.code) as { idx: number } | undefined;
   if (!open) throw new Error('FULL');
 
-  db.prepare('UPDATE parts SET assignee_id = ?, assignee_nm = ? WHERE code = ? AND idx = ?').run(id, name, opts.code, open.idx);
-  logEvent(opts.code, 'joined', { name, id, index: open.idx });
+  db.prepare('UPDATE parts SET assignee_id = ?, assignee_nm = ?, assignee_did = ? WHERE code = ? AND idx = ?').run(id, name, displayId || null, opts.code, open.idx);
+  logEvent(opts.code, 'joined', { name, id: displayId, index: open.idx });
   return { partIndex: open.idx, rejoined: false };
 }
 
@@ -182,7 +190,7 @@ export function startPart(opts: { code: string; index: number; participantId?: s
     opts.code,
     opts.index
   );
-  logEvent(opts.code, 'started', { name: part.assignee_nm || '', id: part.assignee_id || '', index: opts.index });
+  logEvent(opts.code, 'started', { name: part.assignee_nm || '', id: part.assignee_did || '', index: opts.index });
   refreshStatus(opts.code);
 }
 
@@ -190,7 +198,7 @@ export function endPart(opts: { code: string; index: number; participantId?: str
   const part = authorizePart(opts.code, opts.index, opts.participantId);
   if (part.status !== 'in_progress') throw new Error('NOT_STARTED');
   db.prepare('UPDATE parts SET status = ?, ended_at = ? WHERE code = ? AND idx = ?').run('done', now(), opts.code, opts.index);
-  logEvent(opts.code, 'ended', { name: part.assignee_nm || '', id: part.assignee_id || '', index: opts.index });
+  logEvent(opts.code, 'ended', { name: part.assignee_nm || '', id: part.assignee_did || '', index: opts.index });
   refreshStatus(opts.code);
 }
 
@@ -203,7 +211,7 @@ function assertAdmin(code: string, adminToken?: string): RoomRow {
 /** Clear a part's assignment and reset it to open (shared by release & pass). */
 function openPart(code: string, index: number): void {
   db.prepare(
-    'UPDATE parts SET assignee_id = NULL, assignee_nm = NULL, status = ?, started_at = NULL, ended_at = NULL WHERE code = ? AND idx = ?'
+    'UPDATE parts SET assignee_id = NULL, assignee_nm = NULL, assignee_did = NULL, status = ?, started_at = NULL, ended_at = NULL WHERE code = ? AND idx = ?'
   ).run('open', code, index);
 }
 
@@ -223,10 +231,11 @@ export function releasePart(opts: { code: string; index: number; adminToken?: st
  * unfinished part (completed parts don't count) — finish or pass your current
  * part before claiming another.
  */
-export function claimPart(opts: { code: string; index: number; name: string; participantId: string }): void {
+export function claimPart(opts: { code: string; index: number; name: string; participantId: string; displayId?: string }): void {
   requireRoom(opts.code);
   const name = (opts.name || '').trim();
   const id = (opts.participantId || '').trim();
+  const displayId = (opts.displayId || '').trim();
   if (!name) throw new Error('NO_NAME');
   if (!id) throw new Error('NO_ID');
 
@@ -239,15 +248,15 @@ export function claimPart(opts: { code: string; index: number; name: string; par
     .get(opts.code, id) as { n: number };
   if (active.n > 0) throw new Error('HAS_ACTIVE');
 
-  db.prepare('UPDATE parts SET assignee_id = ?, assignee_nm = ? WHERE code = ? AND idx = ?').run(id, name, opts.code, opts.index);
-  logEvent(opts.code, 'claimed', { name, id, index: opts.index });
+  db.prepare('UPDATE parts SET assignee_id = ?, assignee_nm = ?, assignee_did = ? WHERE code = ? AND idx = ?').run(id, name, displayId || null, opts.code, opts.index);
+  logEvent(opts.code, 'claimed', { name, id: displayId, index: opts.index });
 }
 
 /** Owner (or admin) releases an unfinished part so it re-opens for anyone. */
 export function passPart(opts: { code: string; index: number; participantId?: string }): void {
   const part = authorizePart(opts.code, opts.index, opts.participantId);
   if (part.status === 'done') throw new Error('ALREADY_DONE');
-  logEvent(opts.code, 'passed', { name: part.assignee_nm || '', id: part.assignee_id || '', index: opts.index });
+  logEvent(opts.code, 'passed', { name: part.assignee_nm || '', id: part.assignee_did || '', index: opts.index });
   openPart(opts.code, opts.index);
   refreshStatus(opts.code);
 }
@@ -269,7 +278,7 @@ function readParts(code: string): PartState[] {
     status: r.status,
     startedAt: r.started_at,
     endedAt: r.ended_at,
-    assignee: r.assignee_id ? { id: r.assignee_id, name: r.assignee_nm || '' } : null,
+    assignee: r.assignee_id ? { id: r.assignee_id, name: r.assignee_nm || '', displayId: r.assignee_did || '' } : null,
   }));
 }
 
