@@ -34,6 +34,14 @@ db.exec(`
     message TEXT NOT NULL,
     at      INTEGER NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS participants (
+    code           TEXT NOT NULL,
+    participant_id TEXT NOT NULL,
+    name           TEXT NOT NULL,
+    joined_at      INTEGER NOT NULL,
+    PRIMARY KEY (code, participant_id)
+  );
 `);
 
 export default db;

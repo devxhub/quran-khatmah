@@ -56,12 +56,13 @@ export interface FeedEntry {
   at: number;
 }
 
-export type RoomStatus = 'active' | 'completed';
+// 'lobby' = created, people joining, not yet divided; 'active' = divided & reading.
+export type RoomStatus = 'lobby' | 'active' | 'completed';
 
 export interface RoomState {
   code: string;
   status: RoomStatus;
-  participantCount: number;
+  participantCount: number; // the admin's expected target (display only)
   dedication: string | null;
   createdAt: number;
   completedAt: number | null;
@@ -69,6 +70,7 @@ export interface RoomState {
   doneCount: number;
   totalParts: number;
   parts: PartState[];
+  participants: Assignee[]; // people who joined the lobby (id + name)
   feed: FeedEntry[];
 }
 

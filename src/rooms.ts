@@ -6,7 +6,7 @@
 import { customAlphabet } from 'nanoid';
 import db from './db.js';
 import { divideQuran } from './quran.js';
-import { PartState, RoomState, FeedEntry, ExportData } from './types.js';
+import { PartState, RoomState, FeedEntry, ExportData, Assignee } from './types.js';
 
 // Human-friendly codes (no ambiguous 0/O/1/I).
 const genCode = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 6);
@@ -22,7 +22,7 @@ interface RoomRow {
   admin_token: string;
   participant_count: number;
   dedication: string | null;
-  status: 'active' | 'completed';
+  status: 'lobby' | 'active' | 'completed';
   created_at: number;
   completed_at: number | null;
 }
@@ -42,6 +42,21 @@ function logEvent(code: string, key: string, params: Record<string, string | num
   db.prepare('INSERT INTO events (code, message, at) VALUES (?,?,?)').run(code, JSON.stringify({ key, params }), now());
 }
 
+/** Register/refresh a participant in the room's roster (idempotent). */
+function upsertParticipant(code: string, id: string, name: string): void {
+  db.prepare(
+    'INSERT INTO participants (code, participant_id, name, joined_at) VALUES (?,?,?,?) ' +
+      'ON CONFLICT(code, participant_id) DO UPDATE SET name = excluded.name'
+  ).run(code, id, name, now());
+}
+
+function readParticipants(code: string): Assignee[] {
+  const rows = db
+    .prepare('SELECT participant_id, name FROM participants WHERE code = ? ORDER BY joined_at ASC')
+    .all(code) as { participant_id: string; name: string }[];
+  return rows.map((r) => ({ id: r.participant_id, name: r.name }));
+}
+
 export function getRoom(code: string): RoomRow | undefined {
   return db.prepare('SELECT * FROM rooms WHERE code = ?').get(code) as RoomRow | undefined;
 }
@@ -56,27 +71,58 @@ function getPart(code: string, idx: number): PartRow | undefined {
   return db.prepare('SELECT * FROM parts WHERE code = ? AND idx = ?').get(code, idx) as PartRow | undefined;
 }
 
+/**
+ * Create a room in the 'lobby' phase. The number is just an expected target for
+ * progress display — the Quran is NOT divided yet. Division happens later in
+ * `startKhatmah`, based on the count the admin confirms once people have joined.
+ */
 export function createRoom(opts: { participantCount: number; dedication?: string }): { code: string; adminToken: string } {
-  const count = Math.min(MAX_PARTICIPANTS, Math.max(1, Math.floor(Number(opts.participantCount) || 0)));
-  if (!count) throw new Error('BAD_COUNT');
+  const target = Math.min(MAX_PARTICIPANTS, Math.max(1, Math.floor(Number(opts.participantCount) || 0)));
+  if (!target) throw new Error('BAD_COUNT');
 
   let code = genCode();
   while (getRoom(code)) code = genCode();
   const adminToken = genToken();
 
-  const insertRoom = db.prepare(
+  db.prepare(
     'INSERT INTO rooms (code, admin_token, participant_count, dedication, status, created_at) VALUES (?,?,?,?,?,?)'
-  );
-  const insertPart = db.prepare('INSERT INTO parts (code, idx, data_json, status) VALUES (?,?,?,?)');
-  const parts = divideQuran(count);
-
-  db.transaction(() => {
-    insertRoom.run(code, adminToken, count, (opts.dedication || '').trim() || null, 'active', now());
-    for (const p of parts) insertPart.run(code, p.index, JSON.stringify(p), 'open');
-  })();
-  logEvent(code, 'room_created', { count });
+  ).run(code, adminToken, target, (opts.dedication || '').trim() || null, 'lobby', now());
+  logEvent(code, 'room_created', { count: target });
 
   return { code, adminToken };
+}
+
+/** Register a participant in the lobby (idempotent on reconnect/rename). */
+export function joinLobby(opts: { code: string; name: string; participantId: string }): void {
+  requireRoom(opts.code);
+  const name = (opts.name || '').trim();
+  const id = (opts.participantId || '').trim();
+  if (!name) throw new Error('NO_NAME');
+  if (!id) throw new Error('NO_ID');
+
+  const existing = db.prepare('SELECT 1 FROM participants WHERE code = ? AND participant_id = ?').get(opts.code, id);
+  upsertParticipant(opts.code, id, name);
+  if (!existing) logEvent(opts.code, 'lobby_joined', { name });
+}
+
+/**
+ * Admin-only: divide the Quran into `count` parts and move the room from 'lobby'
+ * to 'active'. `count` is what the admin confirms (defaults on the client to the
+ * number of joined participants). Parts are created open for claiming.
+ */
+export function startKhatmah(opts: { code: string; adminToken?: string; count: number }): void {
+  const room = assertAdmin(opts.code, opts.adminToken);
+  if (room.status !== 'lobby') throw new Error('ALREADY_STARTED');
+  const count = Math.min(MAX_PARTICIPANTS, Math.max(1, Math.floor(Number(opts.count) || 0)));
+  if (!count) throw new Error('BAD_COUNT');
+
+  const parts = divideQuran(count);
+  const insertPart = db.prepare('INSERT INTO parts (code, idx, data_json, status) VALUES (?,?,?,?)');
+  db.transaction(() => {
+    for (const p of parts) insertPart.run(opts.code, p.index, JSON.stringify(p), 'open');
+    db.prepare('UPDATE rooms SET status = ?, participant_count = ? WHERE code = ?').run('active', count, opts.code);
+  })();
+  logEvent(opts.code, 'khatmah_started', { count });
 }
 
 function refreshStatus(code: string): void {
@@ -97,6 +143,7 @@ export function joinRoom(opts: { code: string; name: string; participantId: stri
   const id = (opts.participantId || '').trim();
   if (!name) throw new Error('NO_NAME');
   if (!id) throw new Error('NO_ID');
+  upsertParticipant(opts.code, id, name); // keep the roster complete for late/active joiners
 
   const existing = db.prepare('SELECT idx FROM parts WHERE code = ? AND assignee_id = ?').get(opts.code, id) as
     | { idx: number }
@@ -245,6 +292,7 @@ export function getState(code: string): RoomState {
     doneCount: parts.filter((p) => p.status === 'done').length,
     totalParts: parts.length,
     parts,
+    participants: readParticipants(code),
     feed,
   };
 }
@@ -282,6 +330,7 @@ export function closeKhatmah(opts: { code: string; adminToken?: string }): Expor
   db.transaction(() => {
     db.prepare('DELETE FROM parts WHERE code = ?').run(opts.code);
     db.prepare('DELETE FROM events WHERE code = ?').run(opts.code);
+    db.prepare('DELETE FROM participants WHERE code = ?').run(opts.code);
     db.prepare('DELETE FROM rooms WHERE code = ?').run(opts.code);
   })();
   return data;

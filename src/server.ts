@@ -81,6 +81,27 @@ io.on("connection", (socket: Socket) => {
     }),
   );
 
+  // Lobby phase: register a participant (before the Quran is divided).
+  socket.on(
+    "joinLobby",
+    handle((p) => {
+      rooms.joinLobby(p);
+      socket.join(p.code);
+      socket.data.code = p.code;
+      broadcast(p.code);
+      return { state: rooms.getState(p.code) };
+    }),
+  );
+
+  // Admin divides the Quran by the confirmed count and starts the khatmah.
+  socket.on(
+    "startKhatmah",
+    handle((p) => {
+      rooms.startKhatmah(p);
+      broadcast(p.code);
+    }),
+  );
+
   socket.on(
     "startPart",
     handle((p) => {
